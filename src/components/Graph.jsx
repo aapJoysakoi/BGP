@@ -61,4 +61,9 @@ const Graph = ({ data, scenario = "normal" }) => {
         padding: 10,
       },
     });
-  },
+  }, [data, scenario]);
+
+  return <div id="cy" style={{ width: "100%", height: "500px" }} />;
+};
+
+export default Graph;

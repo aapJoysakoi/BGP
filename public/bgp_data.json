@@ -1,0 +1,44 @@
+{
+  "ases": [
+    { "id": "AS1", "label": "Legit Origin AS" },
+    { "id": "AS2", "label": "Transit AS" },
+    { "id": "AS3", "label": "Transit AS" },
+    { "id": "AS4", "label": "Customer AS" },
+    { "id": "AS5", "label": "Hijacker AS" }
+  ],
+  "prefixes": [
+    { "prefix": "192.0.2.0/24", "owner": "AS1" }
+  ],
+  "paths": {
+    "normal": [
+      {
+        "prefix": "192.0.2.0/24",
+        "path": ["AS4", "AS3", "AS2", "AS1"]
+      }
+    ],
+    "hijack_origin_change": [
+      {
+        "prefix": "192.0.2.0/24",
+        "path": ["AS4", "AS3", "AS2", "AS5"]
+      }
+    ],
+    "hijack_forged_path": [
+      {
+        "prefix": "192.0.2.0/24",
+        "path": ["AS4", "AS3", "AS5", "AS1"]
+      }
+    ],
+    "hijack_typo": [
+      {
+        "prefix": "192.0.2.0/24",
+        "path": ["AS4", "AS3", "AS2", "AS2"]
+      }
+    ],
+    "hijack_prepend": [
+      {
+        "prefix": "192.0.2.0/24",
+        "path": ["AS4", "AS3", "AS2", "AS1", "AS1", "AS1"]
+      }
+    ]
+  }
+}

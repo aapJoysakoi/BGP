@@ -1,11 +1,11 @@
 {
   "ases": [
-    { "id": "AS1", "label": "Legit Origin AS" },
-    { "id": "AS2", "label": "Transit AS" },
-    { "id": "AS3", "label": "Transit AS" },
-    { "id": "AS4", "label": "Customer AS" },
-    { "id": "AS5", "label": "Hijacker AS" }
-  ],
+{ "id": "AS1", "label": "AS1 (Origin)", "role": "origin" },
+{ "id": "AS2", "label": "AS2 (Transit)", "role": "transit" },
+{ "id": "AS3", "label": "AS3 (Transit)", "role": "transit" },
+{ "id": "AS4", "label": "AS4 (Customer)", "role": "transit" },
+{ "id": "AS5", "label": "AS5 (Hijacker)", "role": "hijacker" }
+],
   "prefixes": [
     { "prefix": "192.0.2.0/24", "owner": "AS1" }
   ],

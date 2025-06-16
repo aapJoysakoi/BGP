@@ -111,7 +111,7 @@ B.Tech-M.Tech (Cyber Security)
 National Forensic Sciences University – Delhi Campus  
 Intern, National Internet Exchange of India (NIXI)  
 
-📎 [LinkedIn](https://www.linkedin.com/in/joysakaushik)
+📎 [LinkedIn](https://www.linkedin.com/in/aap-joysa-koi/)
 
 ---
 

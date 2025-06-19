@@ -1,127 +1,128 @@
-BGP Hijack Simulator
+# BGP Hijack Simulator  
 An Interactive Learning Platform for Internet Routing Security
 
-Developed during an internship at the National Internet Exchange of India (NIXI), this project simulates real-world BGP (Border Gateway Protocol) hijack scenarios to foster cybersecurity awareness and routing security education.
+Developed during an internship at the National Internet Exchange of India (NIXI), this project simulates real-world BGP (Border Gateway Protocol) hijack scenarios to promote cybersecurity awareness and teach routing vulnerabilities through visualization.
 
-📘 Overview
-The Border Gateway Protocol (BGP) plays a crucial role in directing traffic across the global Internet. However, its lack of inherent security mechanisms makes it vulnerable to route hijacks—where malicious or misconfigured Autonomous Systems (ASes) advertise false routing information.
+---
 
-This simulator allows learners to explore how such hijacks occur, visualize their impact, and experiment with different mitigation patterns in a controlled, interactive environment.
+## 📘 Overview
 
-🎯 Key Features
-🌐 Web-based: Fully frontend-based (React + Vite)
+BGP (Border Gateway Protocol) governs how data moves between autonomous systems on the Internet. However, due to a lack of built-in security, it is vulnerable to attacks such as route hijacks.  
 
-📡 Scenario-driven: Simulates origin hijacks, forged paths, typos, and more
+This simulator enables users to:
 
-📊 Graph Visualization: Cytoscape.js used for real-time AS path rendering
+- Understand how BGP routing works  
+- Visualize different types of BGP hijacks  
+- Interactively switch between scenarios  
+- Observe the impact of routing anomalies in real-time  
 
-🎨 Visual Cues: Color-coded nodes and edges to distinguish normal vs. hijacked states
+---
 
-🧭 Role Indicators: Identifies origin AS, transit AS, and hijackers
+## 🎯 Features
 
-🧠 Education-Focused: Designed for cybersecurity students and early-career professionals
+- 💻 Browser-based (React + Vite)  
+- 🔄 Dynamic scenario switching  
+- 🧠 Simulates common BGP hijack techniques  
+- 📊 Graph rendering using Cytoscape.js  
+- 🎨 Color-coded nodes based on AS roles  
+- 📁 Lightweight, frontend-only architecture  
 
-📷 Demonstration
-Scenario	Preview
-Normal Routing	
-Origin Hijack	
-Forged AS Path	
-Prepending Error	
-Typographical Error	
+---
 
-📁 Project Structure
-php
-Copy
-Edit
-BGP/
-├── public/
-│   └── bgp_data.json        # Predefined AS paths & roles
-├── src/
-│   ├── components/
-│   │   ├── Graph.jsx        # Graph rendering logic
-│   │   └── Controls.jsx     # Scenario selection buttons
-│   ├── App.jsx              # Main container and state manager
-│   ├── styles.css           # UI styling
-├── package.json             # Project metadata & dependencies
-├── README.md                # This document
-🚀 Getting Started
-To run the project locally:
+## 🖼️ Scenario Demonstrations
 
-Clone the repository:
+| Scenario             | Description                                                    | Preview                             |
+|----------------------|----------------------------------------------------------------|-------------------------------------|
+| Normal Routing       | Legitimate AS path from origin to destination                  | ![](./public/interface.png)         |
+| Origin Hijack        | A malicious AS falsely claims ownership of a prefix            | ![](./public/origin.png)            |
+| Forged AS Path       | A hijacker inserts the origin AS to make its path look valid   | ![](./public/forgedpath.png)        |
+| AS Path Prepending   | Origin AS artificially inflates its AS path                    | ![](./public/prepend.png)           |
+| Typographical Error  | A misconfigured AS path causes route disruption                | ![](./public/typo.png)              |
 
-bash
-Copy
-Edit
+---
+
+## 🚀 Getting Started
+
+To run the simulator locally:
+
+```bash
 git clone https://github.com/aapJoysakoi/BGP.git
 cd BGP
-Install dependencies:
-
-bash
-Copy
-Edit
 npm install
-Start the development server:
-
-bash
-Copy
-Edit
 npm run dev
-Open your browser and navigate to:
+```
+Then open your browser and go to:
+http://localhost:5173
 
-arduino
-Copy
-Edit
-http://localhost:5173/
-🧪 Implemented Scenarios
-Each scenario mimics a real-world misconfiguration or attack, rendered graphically for clarity:
+---
+📁 Project Structure
+```bash
+BGP/
+├── public/
+│   ├── bgp_data.json
+│   ├── interface.png
+│   ├── origin.png
+│   ├── forgedpath.png
+│   ├── prepend.png
+│   └── typo.png
+├── src/
+│   ├── components/
+│   │   ├── Graph.jsx
+│   │   └── Controls.jsx
+│   ├── App.jsx
+│   └── styles.css
+├── README.md
+├── package.json
+```
+---
 
-Scenario	Description
-Normal Routing	Displays legitimate AS path and prefix propagation
-Origin Hijack	A false origin AS advertises a prefix it doesn't own
-Forged Path Hijack	A hijacker crafts a fake AS path including the real origin
-AS Path Prepending	An AS manipulates route selection by artificially extending its AS path
-Typographical Error	A misconfigured AS number causes path duplication or invalid propagation
+## ⚙️ Tech Stack
 
-Scenarios are defined in a static JSON file (bgp_data.json) and rendered using Cytoscape layouts.
+- React + Vite (Frontend Framework)  
+- Cytoscape.js (Graph Visualization)  
+- JSON (Static Routing Scenarios)  
+- CSS (Styling)
 
-🔧 Tech Stack
-Component	Technology
-UI Framework	React (Vite)
-Graph Visualization	Cytoscape.js
-Styling	CSS (custom)
-Data Format	JSON
-Package Manager	npm
+---
 
-📚 Educational Goals
-This simulator is designed to:
+## 📚 Learning Objectives
 
-Bridge the gap between theoretical BGP concepts and real-world routing behavior
+- Understand the structure and function of BGP  
+- Learn how hijack techniques affect routing paths  
+- Visually identify route anomalies  
+- Strengthen awareness of Internet infrastructure vulnerabilities  
 
-Offer a visual, hands-on experience for students and security practitioners
+---
 
-Promote awareness of routing security risks and potential countermeasures
+## 🔮 Future Enhancements
 
-Support NIXI’s mission to enhance national Internet infrastructure and cyber hygiene
+- CLI-based BGP command simulation  
+- Real BGP trace replay using RouteViews or BGPStream  
+- Gamified “Challenge Mode” for learners  
+- Drag-and-drop scenario builder  
+- Containerized BGP lab using FRRouting + Docker  
 
-🚧 Roadmap & Future Enhancements
-⌨️ CLI-based scenario scripting interface
+---
 
-🧱 Containerized real BGP lab with FRRouting (via Docker)
+## 👤 Author
 
-🧩 Custom scenario builder (drag-and-drop AS topology)
+**Joysa Kaushik**  
+B.Tech-M.Tech (Cyber Security)  
+National Forensic Sciences University – Delhi Campus  
+Intern, National Internet Exchange of India (NIXI)  
 
-🎮 Gamified “Challenge Mode” with score-based learning
+📎 [LinkedIn](https://www.linkedin.com/in/aap-joysa-koi/)
 
-📈 Real BGP incident replay from RouteViews or BGPStream
+---
 
-👩‍💻 Author
-Joysa Kaushik
-B.Tech-M.Tech (Cyber Security)
-National Forensic Sciences University, Delhi Campus
-Intern – National Internet Exchange of India (NIXI)
+## 📄 License
 
-🔗 LinkedIn: linkedin.com/in/joysakaushik
+This project is released under the MIT License.  
+You are welcome to use, share, and adapt this for educational or non-commercial purposes.
 
-📄 License
-This project is released under the MIT License.
-You are welcome to use, extend, or adapt it for academic and educational purposes.
+
+
+
+
+
+

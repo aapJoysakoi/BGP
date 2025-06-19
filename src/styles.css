@@ -1,0 +1,101 @@
+/* Base Reset */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fff;
+  color: #000;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Full-screen layout */
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+}
+
+/* App container */
+.app-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Headings */
+h1 {
+  font-size: 2rem;
+  margin: 0.5rem 0 1rem;
+}
+
+/* Info banner */
+.info-banner {
+  font-weight: bold;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 15px;
+  border: 1px solid transparent;
+  display: inline-block;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1rem;
+}
+
+/* Tooltip customization */
+.tippy-box {
+  font-size: 0.9rem;
+}
+
+/* Button styling */
+button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  margin: 0.25rem;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #eeeeee;
+  color: #333;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #d0d0d0;
+}
+
+/* Responsive buttons on small screens */
+@media (max-width: 768px) {
+  button {
+    display: block;
+    width: 100%;
+  }
+
+  .info-banner {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Graph container */
+#cy {
+  flex-grow: 1;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #f5f5f5;
+  height: 500px;
+  width: 100%;
+  max-width: 100%;
+  margin-top: 1rem;
+}

@@ -8,6 +8,8 @@ function App() {
   const [data, setData] = useState(null);
   const [scenario, setScenario] = useState("normal");
   const [customPath, setCustomPath] = useState(null);
+  const [theme, setTheme] = useState("light"); // 'light', 'dark', 'hijack'
+  const [mode, setMode] = useState("learning"); // 'learning', 'diy'
 
   useEffect(() => {
     fetch("/bgp_data.json")
@@ -20,7 +22,7 @@ function App() {
     const map = {
       normal: {
         label: "Normal — Legitimate BGP route.",
-        background: "#e8f5e9", // light green
+        background: "#e8f5e9",
         text: "#2e7d32"
       },
       hijack_origin_change: {
@@ -56,6 +58,31 @@ function App() {
     };
   };
 
+  const getThemeStyles = (theme) => {
+    const themes = {
+      light: {
+        backgroundColor: "#ffffff",
+        textColor: "#000000"
+      },
+      dark: {
+        backgroundColor: "#121212",
+        textColor: "#e0e0e0"
+      },
+      hijack: {
+        backgroundColor: "#1b1b1b",
+        textColor: "#ff3d00"
+      }
+    };
+    return themes[theme] || themes.light;
+  };
+
+  // Update body style to match theme
+  useEffect(() => {
+    const themeStyles = getThemeStyles(theme);
+    document.body.style.backgroundColor = themeStyles.backgroundColor;
+    document.body.style.color = themeStyles.textColor;
+  }, [theme]);
+
   const simulateHijack = (attacker, type) => {
     const victimPrefix = data.prefixes[0].prefix;
     const victimAS = data.prefixes[0].owner;
@@ -86,42 +113,62 @@ function App() {
   };
 
   const scenarioInfo = getScenarioStyle(scenario);
+  const themeStyles = getThemeStyles(theme);
   const activeData = customPath?.data || data;
 
   return (
-    <div style={{ padding: "1.5rem", fontFamily: "sans-serif" }}>
-      <h1 style={{ marginBottom: "0.5rem" }}>BGP Hijack Simulator</h1>
+    <div className="app-container">
+      <h1>BGP Hijack Simulator</h1>
 
       <p
+        className="info-banner"
         style={{
-          fontWeight: "bold",
-          marginBottom: "1rem",
-          padding: "10px 16px",
-          borderRadius: "6px",
           backgroundColor: scenarioInfo.background,
           color: scenarioInfo.text,
-          fontSize: "15px",
-          border: `1px solid ${scenarioInfo.text}33`,
-          display: "inline-block",
-          boxShadow: "0 1px 4px rgba(0,0,0,0.08)"
+          border: `1px solid ${scenarioInfo.text}33`
         }}
       >
-        Current Scenario:&nbsp;{scenarioInfo.label}
+        Current Scenario: {scenarioInfo.label}
       </p>
 
+      {/* Theme + Mode Toggle */}
       <div style={{ marginBottom: "1rem" }}>
-        <Controls onChange={setScenario} activeScenario={scenario} />
+        <button
+          onClick={() => {
+            const nextTheme =
+              theme === "light"
+                ? "dark"
+                : theme === "dark"
+                ? "hijack"
+                : "light";
+            setTheme(nextTheme);
+          }}
+        >
+          Theme: {theme.charAt(0).toUpperCase() + theme.slice(1)}
+        </button>
+
+        <button
+          style={{ marginLeft: "1rem" }}
+          onClick={() => setMode(mode === "learning" ? "diy" : "learning")}
+        >
+          Mode: {mode === "learning" ? "Learning Mode" : "Do It Yourself Mode"}
+        </button>
       </div>
 
-      {data && (
-        <>
-          <ScenarioForm ases={data.ases} onSimulate={simulateHijack} />
-          <button onClick={reset} style={{ marginBottom: "1rem" }}>
-            Reset
-          </button>
-        </>
+      {/* Controls or DIY form */}
+      {mode === "learning" ? (
+        <Controls onChange={setScenario} activeScenario={scenario} />
+      ) : (
+        data && <ScenarioForm ases={data.ases} onSimulate={simulateHijack} />
       )}
 
+      {mode === "diy" && (
+        <button onClick={reset} style={{ marginBottom: "1rem" }}>
+          Reset
+        </button>
+      )}
+
+      {/* BGP Graph */}
       {activeData ? (
         <Graph data={activeData} scenario={scenario} />
       ) : (

@@ -76,7 +76,6 @@ function App() {
     return themes[theme] || themes.light;
   };
 
-  // Update body style to match theme
   useEffect(() => {
     const themeStyles = getThemeStyles(theme);
     document.body.style.backgroundColor = themeStyles.backgroundColor;
@@ -90,9 +89,9 @@ function App() {
     let path = [];
 
     if (type === "origin_change") {
-      path = ["AS4", "AS3", "AS2", attacker]; // Attacker becomes origin
+      path = ["AS4", "AS3", "AS2", attacker]; // attacker becomes origin
     } else if (type === "forged_path") {
-      path = ["AS4", "AS3", attacker, victimAS]; // Attacker fakes link to legit origin
+      path = ["AS4", "AS3", attacker, victimAS]; // attacker fakes legitimacy
     }
 
     const newData = {
@@ -116,6 +115,24 @@ function App() {
   const themeStyles = getThemeStyles(theme);
   const activeData = customPath?.data || data;
 
+  // Dynamic hijack alert message
+  const getHijackMessage = () => {
+    switch (scenario) {
+      case "hijack_origin_change":
+        return "🚨 Origin Hijack Detected";
+      case "hijack_forged_path":
+        return "⚡ Forged Path Hijack Detected";
+      case "hijack_typo":
+        return "⚠️ AS Path Typo Detected";
+      case "hijack_prepend":
+        return "🔁 AS Path Prepend Detected";
+      case "custom":
+        return "🧪 Custom Hijack Simulation";
+      default:
+        return "🚨 BGP Hijack Detected";
+    }
+  };
+
   return (
     <div className="app-container">
       <h1>BGP Hijack Simulator</h1>
@@ -131,31 +148,36 @@ function App() {
         Current Scenario: {scenarioInfo.label}
       </p>
 
-      {/* Theme + Mode Toggle */}
-      <div style={{ marginBottom: "1rem" }}>
-        <button
-          onClick={() => {
-            const nextTheme =
-              theme === "light"
-                ? "dark"
-                : theme === "dark"
-                ? "hijack"
-                : "light";
-            setTheme(nextTheme);
-          }}
-        >
-          Theme: {theme.charAt(0).toUpperCase() + theme.slice(1)}
-        </button>
+      {/* Top controls row */}
+      <div className="top-controls">
+        <div className="button-group">
+          <button
+            onClick={() => {
+              const nextTheme =
+                theme === "light"
+                  ? "dark"
+                  : theme === "dark"
+                  ? "hijack"
+                  : "light";
+              setTheme(nextTheme);
+            }}
+          >
+            Theme: {theme.charAt(0).toUpperCase() + theme.slice(1)}
+          </button>
 
-        <button
-          style={{ marginLeft: "1rem" }}
-          onClick={() => setMode(mode === "learning" ? "diy" : "learning")}
-        >
-          Mode: {mode === "learning" ? "Learning Mode" : "Do It Yourself Mode"}
-        </button>
+          <button
+            onClick={() => setMode(mode === "learning" ? "diy" : "learning")}
+          >
+            Mode: {mode === "learning" ? "Learning Mode" : "Do It Yourself Mode"}
+          </button>
+        </div>
+
+        {scenario !== "normal" && (
+          <div className="hijack-alert">{getHijackMessage()}</div>
+        )}
       </div>
 
-      {/* Controls or DIY form */}
+      {/* Scenario Controls */}
       {mode === "learning" ? (
         <Controls onChange={setScenario} activeScenario={scenario} />
       ) : (
@@ -168,7 +190,7 @@ function App() {
         </button>
       )}
 
-      {/* BGP Graph */}
+      {/* Graph Display */}
       {activeData ? (
         <Graph data={activeData} scenario={scenario} />
       ) : (

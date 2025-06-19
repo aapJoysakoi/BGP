@@ -4,11 +4,21 @@ import popper from "cytoscape-popper";
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
 
-// Register popper plugin
 cytoscape.use(popper);
 
 const Graph = ({ data, scenario = "normal" }) => {
   const cyRef = useRef(null);
+  const audioRef = useRef(null);
+  const alertShown = useRef(false);
+
+  useEffect(() => {
+    if (scenario !== "normal" && !alertShown.current) {
+      alertShown.current = true;
+      audioRef.current?.play();
+    } else if (scenario === "normal") {
+      alertShown.current = false;
+    }
+  }, [scenario]);
 
   useEffect(() => {
     if (!data || !data.ases || !data.paths[scenario]) return;
@@ -22,7 +32,6 @@ const Graph = ({ data, scenario = "normal" }) => {
     const origin = path[0];
     const hijacker = scenario === "custom" ? path[path.length - 1] : null;
 
-    // Assign classes instead of inline styles
     const nodes = data.ases.map((as) => {
       let nodeClass = "legit";
       if (as.id === origin) nodeClass = "origin";
@@ -33,16 +42,18 @@ const Graph = ({ data, scenario = "normal" }) => {
       };
     });
 
-    const edges = path.map((asId, index, array) => {
-      if (index === 0) return null;
-      return {
-        data: {
-          id: `e${array[index - 1]}_${asId}`,
-          source: array[index - 1],
-          target: asId
-        }
-      };
-    }).filter(Boolean);
+    const edges = path
+      .map((asId, index, array) => {
+        if (index === 0) return null;
+        return {
+          data: {
+            id: `e${array[index - 1]}_${asId}`,
+            source: array[index - 1],
+            target: asId
+          }
+        };
+      })
+      .filter(Boolean);
 
     const cy = cytoscape({
       container: document.getElementById("cy"),
@@ -78,13 +89,17 @@ const Graph = ({ data, scenario = "normal" }) => {
         {
           selector: "node.hijacker",
           style: {
-            "background-color": "#ff4136"
+            "background-color": "#ff4136",
+            "border-width": 4,
+            "border-color": "#ff4136",
+            "border-opacity": 0.6
           }
         },
         {
           selector: "edge",
           style: {
             width: 3,
+            opacity: 1,
             "line-color": "#999",
             "target-arrow-color": "#999",
             "target-arrow-shape": "triangle",
@@ -95,8 +110,8 @@ const Graph = ({ data, scenario = "normal" }) => {
       layout: {
         name: "breadthfirst",
         directed: true,
-        padding: 10,
-        spacingFactor: 1.5
+        padding: 20,
+        spacingFactor: 1.6
       },
       minZoom: 0.5,
       maxZoom: 2.5,
@@ -104,17 +119,27 @@ const Graph = ({ data, scenario = "normal" }) => {
       boxSelectionEnabled: false
     });
 
-    // Clamp panning
+    cyRef.current = cy;
+
+    let isPanningProgrammatically = false;
     cy.on("pan", () => {
+      if (isPanningProgrammatically) return;
       const pan = cy.pan();
       const limit = 300;
-      cy.pan({
+      const clampedPan = {
         x: Math.max(Math.min(pan.x, limit), -limit),
         y: Math.max(Math.min(pan.y, limit), -limit)
-      });
+      };
+      if (pan.x !== clampedPan.x || pan.y !== clampedPan.y) {
+        isPanningProgrammatically = true;
+        cy.pan(clampedPan);
+        setTimeout(() => {
+          isPanningProgrammatically = false;
+        }, 0);
+      }
     });
 
-    // ✅ Create tooltips using popperRef
+    // Tooltips
     cy.nodes().forEach((node) => {
       const asId = node.id();
       const asInfo = data.ases.find((as) => as.id === asId);
@@ -124,8 +149,8 @@ const Graph = ({ data, scenario = "normal" }) => {
       const type = isHijacker ? "Malicious" : "Legitimate";
 
       const ref = node.popperRef();
-      const dummyDomEle = document.createElement("div");
-      const tip = tippy(dummyDomEle, {
+      const dummy = document.createElement("div");
+      const tip = tippy(dummy, {
         getReferenceClientRect: ref.getBoundingClientRect,
         content: `
           <strong>${asInfo?.label || asId}</strong><br/>
@@ -141,11 +166,30 @@ const Graph = ({ data, scenario = "normal" }) => {
       node.on("mouseover", () => tip.show());
       node.on("mouseout", () => tip.hide());
     });
-
-    cyRef.current = cy;
   }, [data, scenario]);
 
-  return <div id="cy" style={{ width: "100%", height: "500px" }} />;
+  // Determine wrapper class for border color
+  const hijackClassMap = {
+    hijack_origin_change: "hijack-red",
+    hijack_forged_path: "hijack-blue",
+    hijack_typo: "hijack-yellow",
+    hijack_prepend: "hijack-orange",
+    custom: "hijack-purple"
+  };
+
+  const isHijack = scenario !== "normal";
+  const wrapperClass = isHijack
+    ? `graph-wrapper ${hijackClassMap[scenario] || "hijack-red"}`
+    : "graph-wrapper";
+
+  return (
+    <div style={{ position: "relative" }}>
+      <audio ref={audioRef} src="/alert.mp3" preload="auto" />
+      <div className={wrapperClass}>
+        <div id="cy" />
+      </div>
+    </div>
+  );
 };
 
 export default Graph;

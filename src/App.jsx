@@ -8,8 +8,8 @@ function App() {
   const [data, setData] = useState(null);
   const [scenario, setScenario] = useState("normal");
   const [customPath, setCustomPath] = useState(null);
-  const [theme, setTheme] = useState("light"); // 'light', 'dark', 'hijack'
-  const [mode, setMode] = useState("learning"); // 'learning', 'diy'
+  const [theme, setTheme] = useState("light");
+  const [mode, setMode] = useState("learning");
 
   useEffect(() => {
     fetch("/bgp_data.json")
@@ -65,12 +65,8 @@ function App() {
         textColor: "#000000"
       },
       dark: {
-        backgroundColor: "#121212",
-        textColor: "#e0e0e0"
-      },
-      hijack: {
-        backgroundColor: "#1b1b1b",
-        textColor: "#ff3d00"
+        backgroundColor: "#181818",
+        textColor: "#f0f0f0"
       }
     };
     return themes[theme] || themes.light;
@@ -80,6 +76,7 @@ function App() {
     const themeStyles = getThemeStyles(theme);
     document.body.style.backgroundColor = themeStyles.backgroundColor;
     document.body.style.color = themeStyles.textColor;
+    document.body.classList.toggle("dark-mode", theme === "dark");
   }, [theme]);
 
   const simulateHijack = (attacker, type) => {
@@ -89,9 +86,9 @@ function App() {
     let path = [];
 
     if (type === "origin_change") {
-      path = ["AS4", "AS3", "AS2", attacker]; // attacker becomes origin
+      path = ["AS4", "AS3", "AS2", attacker];
     } else if (type === "forged_path") {
-      path = ["AS4", "AS3", attacker, victimAS]; // attacker fakes legitimacy
+      path = ["AS4", "AS3", attacker, victimAS];
     }
 
     const newData = {
@@ -112,11 +109,9 @@ function App() {
   };
 
   const scenarioInfo = getScenarioStyle(scenario);
-  const themeStyles = getThemeStyles(theme);
   const activeData = customPath?.data || data;
 
-  // Dynamic hijack alert message
-  const getHijackMessage = () => {
+  const getHijackBannerMessage = () => {
     switch (scenario) {
       case "hijack_origin_change":
         return "🚨 Origin Hijack Detected";
@@ -129,7 +124,7 @@ function App() {
       case "custom":
         return "🧪 Custom Hijack Simulation";
       default:
-        return "🚨 BGP Hijack Detected";
+        return null;
     }
   };
 
@@ -148,21 +143,13 @@ function App() {
         Current Scenario: {scenarioInfo.label}
       </p>
 
-      {/* Top controls row */}
+      {/* Controls: Theme + Mode + Alert */}
       <div className="top-controls">
         <div className="button-group">
           <button
-            onClick={() => {
-              const nextTheme =
-                theme === "light"
-                  ? "dark"
-                  : theme === "dark"
-                  ? "hijack"
-                  : "light";
-              setTheme(nextTheme);
-            }}
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
           >
-            Theme: {theme.charAt(0).toUpperCase() + theme.slice(1)}
+            Theme: {theme === "light" ? "Light" : "Dark"}
           </button>
 
           <button
@@ -173,11 +160,11 @@ function App() {
         </div>
 
         {scenario !== "normal" && (
-          <div className="hijack-alert">{getHijackMessage()}</div>
+          <div className="hijack-alert">{getHijackBannerMessage()}</div>
         )}
       </div>
 
-      {/* Scenario Controls */}
+      {/* Learning mode = scenario buttons, DIY mode = form */}
       {mode === "learning" ? (
         <Controls onChange={setScenario} activeScenario={scenario} />
       ) : (
@@ -190,7 +177,7 @@ function App() {
         </button>
       )}
 
-      {/* Graph Display */}
+      {/* Graph component */}
       {activeData ? (
         <Graph data={activeData} scenario={scenario} />
       ) : (

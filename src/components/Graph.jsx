@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import cytoscape from "cytoscape";
 import popper from "cytoscape-popper";
 import tippy from "tippy.js";
@@ -10,6 +10,8 @@ const Graph = ({ data, scenario = "normal" }) => {
   const cyRef = useRef(null);
   const audioRef = useRef(null);
   const alertShown = useRef(false);
+  const [targetNodeId, setTargetNodeId] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
     if (scenario !== "normal" && !alertShown.current) {
@@ -76,15 +78,11 @@ const Graph = ({ data, scenario = "normal" }) => {
         },
         {
           selector: "node.legit",
-          style: {
-            "background-color": "#0074D9"
-          }
+          style: { "background-color": "#0074D9" }
         },
         {
           selector: "node.origin",
-          style: {
-            "background-color": "#2ecc40"
-          }
+          style: { "background-color": "#2ecc40" }
         },
         {
           selector: "node.hijacker",
@@ -96,10 +94,17 @@ const Graph = ({ data, scenario = "normal" }) => {
           }
         },
         {
+          selector: "node.highlight",
+          style: {
+            "border-color": "#ffeb3b",
+            "border-width": 6,
+            "border-opacity": 1
+          }
+        },
+        {
           selector: "edge",
           style: {
             width: 3,
-            opacity: 1,
             "line-color": "#999",
             "target-arrow-color": "#999",
             "target-arrow-shape": "triangle",
@@ -114,11 +119,12 @@ const Graph = ({ data, scenario = "normal" }) => {
         spacingFactor: 1.6
       },
       minZoom: 0.5,
-      maxZoom: 2.5,
-      userPanningEnabled: true,
-      boxSelectionEnabled: false
+      maxZoom: 2,
+      userZoomingEnabled: true,
+      userPanningEnabled: true
     });
 
+    cy.userZoomingEnabled(false); // disable mouse/scroll zoom
     cyRef.current = cy;
 
     let isPanningProgrammatically = false;
@@ -139,7 +145,6 @@ const Graph = ({ data, scenario = "normal" }) => {
       }
     });
 
-    // Tooltips
     cy.nodes().forEach((node) => {
       const asId = node.id();
       const asInfo = data.ases.find((as) => as.id === asId);
@@ -168,7 +173,6 @@ const Graph = ({ data, scenario = "normal" }) => {
     });
   }, [data, scenario]);
 
-  // Determine wrapper class for border color
   const hijackClassMap = {
     hijack_origin_change: "hijack-red",
     hijack_forged_path: "hijack-blue",
@@ -182,9 +186,102 @@ const Graph = ({ data, scenario = "normal" }) => {
     ? `graph-wrapper ${hijackClassMap[scenario] || "hijack-red"}`
     : "graph-wrapper";
 
+  const handleZoom = (direction) => {
+    const cy = cyRef.current;
+    if (!cy) return;
+    const currentZoom = cy.zoom();
+    const zoomFactor = direction === "in" ? 1.2 : 0.8;
+    cy.zoom({
+      level: currentZoom * zoomFactor,
+      renderedPosition: {
+        x: cy.width() / 2,
+        y: cy.height() / 2
+      }
+    });
+  };
+
+  const handleZoomToNode = () => {
+    const cy = cyRef.current;
+    if (!cy || !targetNodeId) return;
+    const node = cy.getElementById(targetNodeId.trim());
+
+    if (node && node.length > 0) {
+      cy.animate({
+        center: { eles: node },
+        duration: 500
+      });
+      node.addClass("highlight");
+      setTimeout(() => node.removeClass("highlight"), 1500);
+    } else {
+      alert("Node not found.");
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setTargetNodeId(val);
+    const matches = data?.ases
+      .map((as) => as.id)
+      .filter((id) => id.toLowerCase().startsWith(val.toLowerCase()));
+    setSuggestions(matches.slice(0, 5));
+  };
+
+  const handleSuggestionClick = (id) => {
+    setTargetNodeId(id);
+    setSuggestions([]);
+  };
+
   return (
     <div style={{ position: "relative" }}>
       <audio ref={audioRef} src="/alert.mp3" preload="auto" />
+      <div className="graph-controls" style={{ marginBottom: "0.5rem" }}>
+        <button onClick={() => handleZoom("in")}>🔍 Zoom In</button>
+        <button onClick={() => handleZoom("out")}>🔎 Zoom Out</button>
+        <button onClick={() => cyRef.current?.fit()}>🧭 Fit Graph</button>
+
+        {/* Input and suggestions grouped */}
+        <div style={{ display: "inline-block", position: "relative", marginLeft: "1rem" }}>
+          <input
+            type="text"
+            placeholder="Enter AS ID (e.g., AS2)"
+            value={targetNodeId}
+            onChange={handleInputChange}
+            style={{ padding: "0.4rem", minWidth: "120px" }}
+          />
+          <button onClick={handleZoomToNode}>🎯 Go</button>
+
+          {suggestions.length > 0 && (
+            <div
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: 0,
+                background: "white",
+                border: "1px solid #ccc",
+                borderRadius: "5px",
+                boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                zIndex: 10,
+                width: "140px"
+              }}
+            >
+              {suggestions.map((sug) => (
+                <div
+                  key={sug}
+                  onClick={() => handleSuggestionClick(sug)}
+                  style={{
+                    padding: "6px 10px",
+                    cursor: "pointer",
+                    borderBottom: "1px solid #eee"
+                  }}
+                >
+                  {sug}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className={wrapperClass}>
         <div id="cy" />
       </div>

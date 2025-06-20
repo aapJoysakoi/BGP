@@ -213,3 +213,10 @@ body.dark-mode .hijack-alert {
   border-color: #ef5350;
   box-shadow: 0 0 12px rgba(255, 82, 82, 0.3);
 }
+/* Highlighted node when zoomed */
+.highlight {
+  border-width: 6px;
+  border-color: #ffeb3b !important;
+  border-opacity: 1;
+  transition: border 0.2s ease-in-out;
+}
